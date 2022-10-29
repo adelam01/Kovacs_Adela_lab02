@@ -19,5 +19,7 @@ namespace Kovacs_Adela_lab02.Data
         public DbSet<Kovacs_Adela_lab02.Models.Publisher> Publisher { get; set; }
 
         public DbSet<Kovacs_Adela_lab02.Models.Author> Author { get; set; }
+
+        public DbSet<Kovacs_Adela_lab02.Models.Category> Category { get; set; }
     }
 }

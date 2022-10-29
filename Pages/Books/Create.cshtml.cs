@@ -10,7 +10,7 @@ using Kovacs_Adela_lab02.Models;
 
 namespace Kovacs_Adela_lab02.Pages.Books
 {
-    public class CreateModel : PageModel
+    public class CreateModel : BookCategoriesPageModel
     {
         private readonly Kovacs_Adela_lab02.Data.Kovacs_Adela_lab02Context _context;
 
@@ -21,25 +21,56 @@ namespace Kovacs_Adela_lab02.Pages.Books
 
         public IActionResult OnGet()
         {
-            var authorList = _context.Author.Select(x => new
+            var authorlist = _context.Author.Select(x => new
             {
                 x.ID,
                 FullName = x.LastName + " " + x.FirstName
             });
             ViewData["PublisherID"] = new SelectList(_context.Set<Publisher>(), "ID",
 "PublisherName");
-            ViewData["AuthorID"] = new SelectList(authorList, "ID", "FullName");
+            ViewData["AuthorID"] = new SelectList(authorlist, "ID", "FullName");
+            var book = new Book();
+            book.BookCategories = new List<BookCategory>();
+            PopulateAssignedCategoryData(_context, book);
             return Page();
         }
 
         [BindProperty]
         public Book Book { get; set; }
-        
+        public async Task<IActionResult> OnPostAsync(string[] selectedCategories)
+        {
+            var newBook = new Book();
+            if (selectedCategories != null)
+            {
+                newBook.BookCategories = new List<BookCategory>();
+                foreach (var cat in selectedCategories)
+                {
+                    var catToAdd = new BookCategory
+                    {
+                        CategoryID = int.Parse(cat)
+                    };
+                    newBook.BookCategories.Add(catToAdd);
+                }
+            }
+            if (await TryUpdateModelAsync<Book>(
+            newBook,
+            "Book",
+            i => i.Title, i => i.Author,
+            i => i.Price, i => i.PublishingDate, i => i.PublisherID))
+            {
+                _context.Book.Add(newBook);
+                await _context.SaveChangesAsync();
+                return RedirectToPage("./Index");
+            }
+            PopulateAssignedCategoryData(_context, newBook);
+            return Page();
+        }
+
 
         // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
         public async Task<IActionResult> OnPostAsync()
         {
-          if (!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return Page();
             }
