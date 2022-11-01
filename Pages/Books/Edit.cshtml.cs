@@ -22,19 +22,18 @@ namespace Kovacs_Adela_lab02.Pages.Books
         }
 
         [BindProperty]
-        public Book Book { get; set; } = default!;
+        public Book Book { get; set; } 
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
-            if (id == null || _context.Book == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var book = await _context.Book.FirstOrDefaultAsync(m => m.ID == id);
-
             Book = await _context.Book
                 .Include(b => b.Publisher)
+                .Include(b => b.Author)
                 .Include(b => b.BookCategories).ThenInclude(b => b.Category)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.ID == id);
@@ -42,11 +41,10 @@ namespace Kovacs_Adela_lab02.Pages.Books
 
 
             
-            if (book == null)
+            if (Book == null)
             {
                 return NotFound();
             }
-            Book = book;
 
             PopulateAssignedCategoryData(_context, Book);
 
@@ -55,8 +53,7 @@ namespace Kovacs_Adela_lab02.Pages.Books
                 x.ID,
                 FullName = x.LastName + " " + x.FirstName
             });
-            ViewData["PublisherID"] = new SelectList(_context.Set<Publisher>(), "ID",
-"PublisherName");
+            ViewData["PublisherID"] = new SelectList(_context.Set<Publisher>(), "ID","PublisherName");
             ViewData["AuthorID"] = new SelectList(authorList, "ID", "FullName");
             return Page();
         }
@@ -73,6 +70,7 @@ selectedCategories)
 
             var bookToUpdate = await _context.Book
                 .Include(i => i.Publisher)
+                .Include(i => i.Author)
                 .Include(i => i.BookCategories)
                 .ThenInclude(i => i.Category)
                 .FirstOrDefaultAsync(s => s.ID == id);
@@ -85,8 +83,8 @@ selectedCategories)
             if (await TryUpdateModelAsync<Book>(
             bookToUpdate,
             "Book",
-            i => i.Title, i => i.Author,
-            i => i.Price, i => i.PublishingDate, i => i.Publisher))
+            i => i.Title, i => i.AuthorID,
+            i => i.Price, i => i.PublishingDate, i => i.PublisherID))
             {
                 UpdateBookCategories(_context, selectedCategories, bookToUpdate);
                 await _context.SaveChangesAsync();
@@ -100,11 +98,7 @@ selectedCategories)
             return Page();
         }
 
-        /*private bool BookExists(int id)
-        {
-            return _context.Book.Any(e => e.ID == id);
-        }
-        */
+        
     }
    
 }
