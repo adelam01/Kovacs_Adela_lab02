@@ -7,9 +7,14 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Kovacs_Adela_lab02.Data;
 using Kovacs_Adela_lab02.Models;
+using Microsoft.AspNetCore.Authorization;
+using System.Data;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace Kovacs_Adela_lab02.Pages.Books
 {
+    [Authorize(Roles = "Admin")]
     public class DeleteModel : PageModel
     {
         private readonly Kovacs_Adela_lab02.Data.Kovacs_Adela_lab02Context _context;

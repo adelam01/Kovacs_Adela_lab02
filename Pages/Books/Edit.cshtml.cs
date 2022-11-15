@@ -8,10 +8,14 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Kovacs_Adela_lab02.Models;
 using Kovacs_Adela_lab02.Data;
+using System.Data;
+using Microsoft.AspNetCore.Authorization;
+
 
 
 namespace Kovacs_Adela_lab02.Pages.Books
 {
+    [Authorize(Roles = "Admin")]
     public class EditModel : BookCategoriesPageModel
     {
         private readonly Kovacs_Adela_lab02.Data.Kovacs_Adela_lab02Context _context;
